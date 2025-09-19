@@ -1,0 +1,401 @@
+@charset "UTF-8";
+@font-face {
+  font-family: "cam";
+  src: url("fonts/CambayDevanagari-Bold.AH.ttf") format("truetype");
+  font-display: swap;
+}
+/* ---------------------------
+   변수 — 카드 설계 기준(px)
+   --------------------------- */
+:root {
+  /* 카드 설계 크기(px) */
+  --card-w: 500;
+  --card-h: 317;
+  /* 사진 들어갈 홀(카드 설계 좌표 px) */
+  --hole-x: 80;
+  --hole-y: 110;
+  --hole-w: 105;
+  --hole-h: 130;
+  /* 세 줄 텍스트 좌표/크기 (카드 설계 px) */
+  --t-w: 100; /* 세 줄 공통 폭 */
+  --t-h: 13; /* 각 줄 높이(라인박스) */
+  --t1-x: 262;
+  --t1-y: 152;
+  --t2-x: 293;
+  --t2-y: 183;
+  --t3-x: 286;
+  --t3-y: 214;
+  /* 텍스트 공통 스타일 */
+  --text-color: #59514d;
+  --text-weight: 300;
+  --text-size-min: 7px; /* 모바일 최소 */
+  --text-size-vw: 1.2vw; /* 뷰포트 반응 */
+  --text-size-max: 10px; /* 데스크톱 최대 */
+  /* 폰트 세팅 (한글/영문) */
+  --font-ko: "rixrak-sans-pro";
+  --font-en: "video";
+  /* 한글만 키울 배율(예: 1.06 = 6% 크게) */
+  --ko-scale: 1;
+  /* 영문 */
+  --en-scale: 1.2;
+  /* 각 줄 Y보정(px, 카드 설계 좌표 기준). 음수 = 위로, 양수 = 아래로 */
+  --t1-nudge: 2;
+  --t2-nudge: 2;
+  --t3-nudge: 2;
+  /* 베이스라인 보정 (em 단위, +아래, -위로) */
+  --en-baseline-em: 0;
+  --ko-baseline-em: 0;
+  /* 저장용 캔버스 클리핑 여유 */
+  --line-overscan-em: 0.22;
+  /* 기타 UI */
+  --joinus-gap: 10px;
+  --zodiac-bottom-gap: 30px;
+  --zodiac-box-width: 70vw;
+  --mobile-extra-nudge: 0.5;
+}
+
+/* 기본 리셋 */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-en), var(--font-ko), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 앱 레이아웃 */
+.app {
+  min-height: 100dvh;
+}
+
+/* 배경: 항상 꽉 차게, 맨뒤 */
+.intro {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* 화면 중앙 그룹 (원본 속성 복원) */
+.group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 상단 로고 (원본처럼 중앙 여백 유지) */
+.joinus {
+  width: 200px;
+  height: auto;
+  display: block;
+  margin: 0 auto var(--joinus-gap);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* 카드: 카드 비율/크기 유지 + 기준 컨테이너 (position:relative 필수) */
+.stage {
+  position: relative; /* 반드시 있어야 함 — .textLine 의 기준 컨테이너 */
+  overflow: hidden; /* 카드 밖 요소 잘림 방지 */
+  width: min(85vw, 85vh * var(--card-w) / var(--card-h), var(--card-w) * 1px);
+  aspect-ratio: calc(var(--card-w) / var(--card-h));
+}
+
+/* 카드 PNG (배율 유지) */
+#cardImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* 업로드 버튼(시각) & 미리보기 (카드 아래) */
+#holeBackdrop, #photoPreview {
+  position: absolute;
+  z-index: 0;
+  border-radius: 6px;
+  left: calc(var(--hole-x) / var(--card-w) * 100%);
+  top: calc(var(--hole-y) / var(--card-h) * 100%);
+  width: calc(var(--hole-w) / var(--card-w) * 100%);
+  height: calc(var(--hole-h) / var(--card-h) * 100%);
+}
+
+#holeBackdrop {
+  background: #b7e3ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(18px, 5cqw, 40px);
+  user-select: none;
+}
+
+#photoPreview {
+  display: none;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ===== 세 줄 텍스트 (각 1줄) ===== */
+.textLine {
+  position: absolute; /* 기준: 가장 가까운 position ancestor (.stage) */
+  z-index: 2;
+  color: var(--text-color);
+  font-weight: var(--text-weight);
+  font-size: clamp(var(--text-size-min), var(--text-size-vw), var(--text-size-max));
+  line-height: 1;
+  height: calc(var(--t-h) / var(--card-h) * 100%);
+  width: calc(var(--t-w) / var(--card-w) * 100%);
+  white-space: nowrap;
+  overflow: hidden;
+  background: transparent;
+  outline: 0;
+  border: 0;
+  font-family: var(--font-en), var(--font-ko), system-ui, -apple-system, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* placeholder (원본 동작) */
+.textLine:empty:before {
+  content: attr(data-placeholder);
+  opacity: 0.35;
+}
+
+/* 각 줄 위치 — px 기반 변수를 카드 크기 대비 %로 변환 */
+#t1 {
+  left: calc(var(--t1-x) / var(--card-w) * 100%);
+  top: calc(var(--t1-y) / var(--card-h) * 100%);
+}
+
+#t2 {
+  left: calc(var(--t2-x) / var(--card-w) * 100%);
+  top: calc(var(--t2-y) / var(--card-h) * 100%);
+}
+
+#t3 {
+  left: calc(var(--t3-x) / var(--card-w) * 100%);
+  top: calc(var(--t3-y) / var(--card-h) * 100%);
+}
+
+/* 포커스 시 시각 표시 (원본 유지) */
+.textLine:focus {
+  outline: 2px dashed rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
+/* 버튼/노트 등 원본 스타일 복원 */
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.actions button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.actions .start {
+  display: block;
+  height: 44px;
+}
+
+@media (max-width: 360px) {
+  .actions .start {
+    height: 38px;
+  }
+}
+.note p {
+  margin: 15px 0 0;
+  font-size: 18px;
+  line-height: 1.4;
+  letter-spacing: 0.2px;
+  color: rgba(4, 71, 118, 0.82);
+  text-align: center;
+  font-family: "dx-hfl-std", system-ui, -apple-system, sans-serif;
+}
+
+/* ===== 별자리 박스: 카드 아래에 자연스럽게 위치 (원본대로 static) ===== */
+.zodiac-box {
+  position: static; /* 흐름 복귀 — 카드 바로 아래에 나타남 */
+  margin: 50px auto 0;
+  left: auto;
+  transform: none;
+  z-index: auto;
+  width: min(var(--zodiac-box-width), 85vh * var(--card-w) / var(--card-h), var(--card-w) * 1px);
+  box-sizing: border-box;
+  padding: 10px 12px;
+  background: #ffcee2;
+  outline: 2px dashed rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(255, 72, 146, 0.15);
+  color: rgba(89, 81, 77, 0.75);
+}
+
+/* zodiac 내용 레이아웃 (원본) */
+.zodiac-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  padding-inline-start: 0;
+  display: inline-grid;
+  grid-template-columns: repeat(2, max-content);
+  column-gap: 13px;
+  row-gap: 6px;
+  width: max-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+  justify-items: start;
+  font-size: clamp(8px, 0.6vw, 11px);
+  line-height: 1.35;
+  letter-spacing: 0.2px;
+  font-family: var(--font-en), var(--font-ko), system-ui, -apple-system, sans-serif;
+}
+
+.zodiac-list .en {
+  font-weight: 400;
+  margin-right: 0;
+}
+
+@media (max-width: 460px) {
+  .zodiac-list {
+    grid-template-columns: 1fr;
+    font-size: clamp(8px, 1vw, 10px);
+  }
+}
+/* 모바일 전용 보정 (원본 의도대로) */
+@media (hover: none) and (pointer: coarse) {
+  :root {
+    --t1-nudge: -6;
+    --t2-nudge: -6;
+    --t3-nudge: -6;
+    --en-baseline-em: -0.08; /* 모바일에서 영문을 조금 위로 */
+    --line-overscan-em: 0.30;
+    --t-h: 23; /* 편집 박스 자체 키움 */
+  }
+}
+/* 아주 좁은 화면에서 폰트/간격 최적화 */
+@media (max-height: 445px) {
+  .textLine {
+    font-size: 8px;
+  }
+}
+/* 접근성: 모션 최소화 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+/*===인트로====*/
+/* 배경: 항상 꽉 차게 뒤로 */
+.intro-page .bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* 페이지 중앙에 텍스트 + 이미지그룹 세트 정렬 */
+.intro-page .intro {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 수직 중앙 */
+  align-items: center; /* 수평 중앙 */
+  gap: clamp(16px, 3vmin, 32px);
+  padding: clamp(12px, 3vw, 40px);
+}
+
+/* 1) 한 줄 텍스트: 가운데 고정 + 가로폭 제어 */
+.intro-page .intro > div:first-of-type {
+  text-align: center;
+  width: min(92vw, 720px); /* 가로 사이즈 조정 */
+  font-weight: 400;
+  font-size: clamp(16px, 1vw, 28px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.8274509804); /* 배경에 맞게 조절 가능 */
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.35);
+  margin-bottom: 30px;
+}
+
+/* 2) 이미지 두 개: 그룹으로 묶어 중앙 고정 */
+.intro-page .frame-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 4vw, 40px);
+  width: min(92vw, 860px); /* 그룹 전체 가로폭 */
+}
+
+/* 각 이미지 크기 & 약간의 회전 */
+.intro-page .frame-group img {
+  display: block;
+  width: clamp(160px, 80vw, 360px); /* 공통 사이즈(반응형) */
+  height: auto;
+  will-change: transform;
+  transition: transform 0.28s ease;
+  transform-origin: center;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.15));
+}
+
+/* 개별 회전값 */
+.intro-page .frame-group .start1 {
+  transform: rotate(-8deg);
+}
+
+.intro-page .frame-group .start2 {
+  transform: rotate(6deg);
+}
+
+/* (선택) 호버 시 살짝 펴주기 */
+.intro-page .frame-group a:hover img,
+.intro-page .frame-group a:focus-visible img {
+  transform: rotate(0deg) scale(1.02);
+}
+
+/* 아주 좁은 화면에서는 세로 스택 */
+@media (max-width: 420px) {
+  .intro-page .frame-group {
+    flex-direction: column;
+    width: min(92vw, 600px);
+  }
+}
+/* 모션 최소화 환경 */
+@media (prefers-reduced-motion: reduce) {
+  .intro-page .frame-group img {
+    transition: none;
+  }
+}/*# sourceMappingURL=style.css.map */

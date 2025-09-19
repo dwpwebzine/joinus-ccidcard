@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>JOIN US</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="images/favicon_star.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://use.typekit.net/wkr1pwg.css">
+  <script>
+  (function(d) {
+    var config = {
+      kitId: 'qhk4von',
+      scriptTimeout: 3000,
+      async: true
+    },
+    h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+  })(document);
+</script>
+<script>
+  (function(d) {
+    var config = {
+      kitId: 'qhk4von',
+      scriptTimeout: 3000,
+      async: true
+    },
+    h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+  })(document);
+</script>
+</head>
+
+
+<body>
+  <main class="app">
+    <div class="intro">
+      <!-- 배경 -->
+      <img src="images/bg.png" class="bg" alt="">
+
+      <!-- 화면 중앙 그룹 -->
+      <div class="group">
+        <img src="images/joinus.png" class="joinus" alt="">
+
+        <!-- 카드 영역 -->
+        <div class="stage" id="stage">
+          <!-- 카드 뒤 업로드 버튼(시각 요소) -->
+          <div id="holeBackdrop" aria-hidden="true">📸</div>
+
+          <!-- 업로드 미리보기(카드 아래 레이어) -->
+          <img id="photoPreview" alt="" />
+
+          <!-- 카드 PNG (빈공간 클릭 → 업로드) -->
+          <img id="cardImg" src="images/card.png" alt="card" usemap="#cardMap" />
+          <map name="cardMap">
+            <area id="holeArea" shape="rect" coords="0,0,0,0" href="#" alt="사진 업로드" />
+          </map>
+
+          <!-- 세 줄 텍스트(각 1줄 고정, 위치 고정) -->
+          <div id="t1" class="textLine" contenteditable data-placeholder="YOUR NAME"></div>
+          <div id="t2" class="textLine" contenteditable data-placeholder="YOUR STAR SIGN"></div>
+          <div id="t3" class="textLine" contenteditable data-placeholder="YOUR FAVORITE"></div>
+
+          <!-- 내보내기용 캔버스 (숨김) -->
+          <canvas id="exportCanvas" hidden></canvas>
+        </div>
+
+        <!-- 버튼 두 개 한 줄 -->
+        <div class="actions">
+          <button id="saveBtn" type="button" title="앨범에 저장">
+            <img src="images/save.png" alt="save" class="start">
+          </button>
+          <button id="tweetBtn" type="button" title="트위터 공유">
+            <img src="images/share.png" alt="share" class="start">
+          </button>
+        </div>
+
+        <!-- 안내문 -->
+        <div class="note">
+          <p>*¨ 트위터 공유: 버튼 클릭 후 공유 창에서 트위터 선택 ¨*</p>
+        </div>
+
+        <!-- …(actions, note 다음에) -->
+<div class="zodiac-box">
+  <ul class="zodiac-list">
+    <li><span class="en">Aries</span>(<span class="ko">양자리</span>): Mar 21–Apr 19</li>
+    <li><span class="en">Taurus</span>(<span class="ko">황소자리</span>): Apr 20–May 20</li>
+    <li><span class="en">Gemini</span>(<span class="ko">쌍둥이자리</span>): May 21–Jun 21</li>
+    <li><span class="en">Cancer</span>(<span class="ko">게자리</span>): Jun 22–Jul 22</li>
+    <li><span class="en">Leo</span>(<span class="ko">사자자리</span>): Jul 23–Aug 22</li>
+    <li><span class="en">Virgo</span>(<span class="ko">처녀자리</span>): Aug 23–Sep 22</li>
+    <li><span class="en">Libra</span>(<span class="ko">천칭자리</span>): Sep 23–Oct 23</li>
+    <li><span class="en">Scorpio</span>(<span class="ko">전갈자리</span>): Oct 24–Nov 21</li>
+    <li><span class="en">Sagittarius</span>(<span class="ko">사수자리</span>): Nov 22–Dec 21</li>
+    <li><span class="en">Capricorn</span>(<span class="ko">염소자리</span>): Dec 22–Jan 19</li>
+    <li><span class="en">Aquarius</span>(<span class="ko">물병자리</span>): Jan 20–Feb 18</li>
+    <li><span class="en">Pisces</span>(<span class="ko">물고기자리</span>): Feb 19–Mar 20</li>
+  </ul>
+</div>
+
+
+
+        <!-- 실제 파일 선택 인풋 (숨김) -->
+        <input id="fileInput" type="file" accept="image/*" hidden />
+      </div>
+    </div>
+  </main>
+  <script src="main.js"></script>
+</body>
+</html>
