@@ -229,7 +229,7 @@ async function renderToCanvas() {
  // 모바일 보정
   const isMobile = /Mobi|Android/i.test(navigator.userAgent);
   if (isMobile) {
-    ty -= 2;
+    ty -= 1;
   }
     
     drawOneLine(ctx, el, tx, ty, tw, th);
