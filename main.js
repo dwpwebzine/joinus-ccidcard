@@ -222,7 +222,7 @@ async function renderToCanvas() {
     const hPx = parseFloat(s.getPropertyValue("--t-h"));
 
     const tx = rect.width * (xPx / cardW);
-    const ty = rect.height * (yPx / cardH);
+    let ty = rect.height * (yPx / cardH);
     const tw = rect.width * (wPx / cardW);
     const th = rect.height * (hPx / cardH);
     
