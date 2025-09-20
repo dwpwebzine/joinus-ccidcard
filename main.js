@@ -242,8 +242,16 @@ async function renderToCanvas() {
 saveBtn.addEventListener("click", async () => {
   const c = await renderToCanvas();
   c.toBlob((blob) => {
-    if (!blob) return;
+ if (!blob) return;
     const url = URL.createObjectURL(blob);
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      window.open(url, "_blank"); //mobile
+      return;
+    }
+
+    // PC
     const a = Object.assign(document.createElement("a"), {
       href: url,
       download: "CC-IDCARD.png",
@@ -283,6 +291,13 @@ tweetBtn.addEventListener("click", async () => {
 
     // 폴백: 자동 저장해서 첨부 편하게
     const url = URL.createObjectURL(blob);
+  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      window.open(url, "_blank"); // 모바일
+      return;
+    }
+
     const a = Object.assign(document.createElement("a"), {
       href: url,
       download: "CC-IDCARD.png",
