@@ -225,7 +225,13 @@ async function renderToCanvas() {
     const ty = rect.height * (yPx / cardH);
     const tw = rect.width * (wPx / cardW);
     const th = rect.height * (hPx / cardH);
-
+    
+ // 모바일 보정
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    ty -= 3;
+  }
+    
     drawOneLine(ctx, el, tx, ty, tw, th);
   });
 
